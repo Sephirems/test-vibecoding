@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Options — Résumé d'article</title>
+    <link rel="stylesheet" href="panel.css" />
+    <style>
+      body {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 28px 20px;
+      }
+      .provider {
+        margin-bottom: 18px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+      }
+      .provider[data-active='true'] {
+        border-color: var(--accent);
+      }
+      .provider-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .provider-head label {
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .provider-model {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      input[type='password'],
+      input[type='text'] {
+        width: 100%;
+        padding: 9px 10px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: var(--bg);
+        color: var(--fg);
+        font: inherit;
+        font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .state {
+        margin: 8px 0 0;
+        min-height: 18px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .warning {
+        margin-top: 22px;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .warning p {
+        margin: 0 0 8px;
+      }
+      .warning p:last-child {
+        margin-bottom: 0;
+      }
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Résumé d'article</h1>
+    <p>Choisis le fournisseur utilisé pour résumer, et enregistre sa clé API.</p>
+
+    <div id="providers"></div>
+
+    <div class="warning">
+      <p>
+        Les clés sont stockées dans <code>chrome.storage.local</code>, sur cette machine
+        uniquement. Elles ne sont jamais écrites dans le code du projet et ne sont envoyées
+        qu'au fournisseur sélectionné.
+      </p>
+      <p>
+        Ce stockage <strong>n'est pas chiffré</strong> : toute personne ayant accès à ce profil
+        Chrome peut le lire. Configure un plafond de dépense chez ton fournisseur.
+      </p>
+    </div>
+
+    <script src="dist/options.js"></script>
+  </body>
+</html>

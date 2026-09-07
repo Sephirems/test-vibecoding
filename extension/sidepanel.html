@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Résumé d'article</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="page">
+      <p class="page-title" id="page-title">—</p>
+      <p class="page-url" id="page-url"></p>
+    </header>
+
+    <main>
+      <section id="view-idle" hidden>
+        <button class="primary" id="summarize" type="button">Résumer cette page</button>
+      </section>
+
+      <section id="view-loading" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="status" id="loading-status">Lecture de la page…</p>
+      </section>
+
+      <section id="view-result" hidden>
+        <p class="tldr" id="result-tldr"></p>
+        <ul class="points" id="result-points"></ul>
+        <p class="notice" id="result-notice" hidden></p>
+        <div class="actions">
+          <button id="copy" type="button">Copier</button>
+          <button id="regenerate" type="button">Regénérer</button>
+        </div>
+      </section>
+
+      <section id="view-error" hidden>
+        <p class="error-title">Échec</p>
+        <p class="error-message" id="error-message"></p>
+        <button id="retry" type="button" hidden>Réessayer</button>
+      </section>
+
+      <section id="view-setup" hidden>
+        <p class="error-message" id="setup-message">Aucune clé API enregistrée.</p>
+        <button class="primary" id="open-options" type="button">Saisir ma clé API</button>
+      </section>
+    </main>
+
+    <footer>
+      <span class="provider-badge" id="provider-badge"></span>
+      <button class="link" id="footer-options" type="button">Options</button>
+    </footer>
+
+    <script src="dist/sidepanel.js"></script>
+  </body>
+</html>
