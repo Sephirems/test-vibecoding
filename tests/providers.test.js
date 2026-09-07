@@ -95,7 +95,7 @@ test('setProvider refuse un identifiant inconnu', async () => {
 test('le catalogue décrit chaque fournisseur complètement', () => {
   assert.ok(CATALOG_LIST.length >= 2);
   for (const provider of CATALOG_LIST) {
-    for (const field of ['id', 'label', 'model', 'keyHint', 'consoleUrl']) {
+    for (const field of ['id', 'label', 'shortLabel', 'model', 'keyHint', 'consoleUrl']) {
       assert.ok(provider[field], `${provider.id}.${field} manquant`);
     }
     assert.match(provider.consoleUrl, /^https:\/\//);

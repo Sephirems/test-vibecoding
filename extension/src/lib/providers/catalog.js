@@ -10,7 +10,8 @@
  * @typedef {'anthropic' | 'gemini'} ProviderId
  * @typedef {object} ProviderInfo
  * @property {ProviderId} id
- * @property {string} label      shown in the UI
+ * @property {string} label      full name, shown in the options and the footer
+ * @property {string} shortLabel one word, for inline sentences ("Envoi à …")
  * @property {string} model      model identifier, shown to the user
  * @property {string[]} keyPrefixes  accepted key prefixes, used for a soft warning
  * @property {string} keyHint    placeholder text
@@ -22,6 +23,7 @@ export const PROVIDER_CATALOG = {
   anthropic: {
     id: 'anthropic',
     label: 'Anthropic — Claude',
+    shortLabel: 'Claude',
     model: 'claude-sonnet-5',
     keyPrefixes: ['sk-ant-'],
     keyHint: 'sk-ant-…',
@@ -30,6 +32,7 @@ export const PROVIDER_CATALOG = {
   gemini: {
     id: 'gemini',
     label: 'Google — Gemini',
+    shortLabel: 'Gemini',
     model: 'gemini-3.8-flash',
     keyPrefixes: ['AQ.', 'AIza'],
     keyHint: 'AQ.… (ancien format : AIza…)',

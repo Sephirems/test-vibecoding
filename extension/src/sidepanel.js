@@ -7,9 +7,14 @@
 
 const VIEWS = ['idle', 'loading', 'result', 'error', 'setup'];
 
-const LOADING_STEPS = [
+/**
+ * The steps name the provider actually in use — showing "Envoi à Claude" while
+ * Gemini is selected is confusing, and it was.
+ * @param {string} providerName
+ */
+const loadingSteps = (providerName) => [
   'Lecture de la page…',
-  'Envoi à Claude…',
+  `Envoi à ${providerName}…`,
   'Rédaction du résumé…',
   'Encore quelques secondes…',
 ];
@@ -32,8 +37,8 @@ const el = {
   footerOptions: document.getElementById('footer-options'),
 };
 
-/** @type {{ busy: boolean, summary: any, loadingTimer: number | undefined }} */
-const state = { busy: false, summary: null, loadingTimer: undefined };
+/** @type {{ busy: boolean, summary: any, provider: any, loadingTimer: number | undefined }} */
+const state = { busy: false, summary: null, provider: null, loadingTimer: undefined };
 
 /** @param {string} name */
 function showView(name) {
@@ -50,12 +55,13 @@ function showError(message, retryable = false) {
 }
 
 function startLoading() {
+  const steps = loadingSteps(state.provider?.shortLabel ?? "l'API");
   let step = 0;
-  el.loadingStatus.textContent = LOADING_STEPS[0];
+  el.loadingStatus.textContent = steps[0];
   showView('loading');
   state.loadingTimer = setInterval(() => {
-    step = Math.min(step + 1, LOADING_STEPS.length - 1);
-    el.loadingStatus.textContent = LOADING_STEPS[step];
+    step = Math.min(step + 1, steps.length - 1);
+    el.loadingStatus.textContent = steps[step];
   }, 2500);
 }
 
@@ -110,6 +116,7 @@ async function refresh() {
 
   el.pageTitle.textContent = response.page.title || '(page sans titre)';
   el.pageUrl.textContent = response.page.url;
+  state.provider = response.provider;
   el.providerBadge.textContent = `${response.provider.label} · ${response.provider.model}`;
 
   if (!response.hasApiKey) {

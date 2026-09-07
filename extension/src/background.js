@@ -65,7 +65,12 @@ async function handleGetPageState() {
     page: { title: tab.title ?? '', url: tab.url ?? '' },
     supported: support.ok,
     reason: support.ok ? '' : support.reason,
-    provider: { id: provider.id, label: provider.label, model: provider.model },
+    provider: {
+      id: provider.id,
+      label: provider.label,
+      shortLabel: provider.shortLabel,
+      model: provider.model,
+    },
     hasApiKey: settings.keys[provider.id].length > 0,
     cached: cached && cached.provider === provider.id ? cached : null,
   };
