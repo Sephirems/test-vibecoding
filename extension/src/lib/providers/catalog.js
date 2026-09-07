@@ -12,7 +12,7 @@
  * @property {ProviderId} id
  * @property {string} label      shown in the UI
  * @property {string} model      model identifier, shown to the user
- * @property {string} keyPrefix  expected key prefix, used for a soft warning
+ * @property {string[]} keyPrefixes  accepted key prefixes, used for a soft warning
  * @property {string} keyHint    placeholder text
  * @property {string} consoleUrl where to get a key
  */
@@ -23,7 +23,7 @@ export const PROVIDER_CATALOG = {
     id: 'anthropic',
     label: 'Anthropic — Claude',
     model: 'claude-sonnet-5',
-    keyPrefix: 'sk-ant-',
+    keyPrefixes: ['sk-ant-'],
     keyHint: 'sk-ant-…',
     consoleUrl: 'https://console.anthropic.com/settings/keys',
   },
@@ -31,8 +31,8 @@ export const PROVIDER_CATALOG = {
     id: 'gemini',
     label: 'Google — Gemini',
     model: 'gemini-3.8-flash',
-    keyPrefix: 'AIza',
-    keyHint: 'AIza…',
+    keyPrefixes: ['AQ.', 'AIza'],
+    keyHint: 'AQ.… (ancien format : AIza…)',
     consoleUrl: 'https://aistudio.google.com/apikey',
   },
 };

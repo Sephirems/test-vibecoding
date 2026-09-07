@@ -74,9 +74,10 @@ function buildRow(provider) {
       return;
     }
     await setKey(provider.id, value);
-    state.textContent = value.startsWith(provider.keyPrefix)
+    const known = provider.keyPrefixes.some((prefix) => value.startsWith(prefix));
+    state.textContent = known
       ? 'Clé enregistrée.'
-      : `Format inattendu (attendu : « ${provider.keyPrefix}… »). Enregistrée quand même.`;
+      : `Format inattendu (attendu : ${provider.keyPrefixes.join(' ou ')}). Enregistrée quand même.`;
   });
 
   toggle.addEventListener('click', () => {

@@ -95,12 +95,18 @@ test('setProvider refuse un identifiant inconnu', async () => {
 test('le catalogue décrit chaque fournisseur complètement', () => {
   assert.ok(CATALOG_LIST.length >= 2);
   for (const provider of CATALOG_LIST) {
-    for (const field of ['id', 'label', 'model', 'keyPrefix', 'keyHint', 'consoleUrl']) {
+    for (const field of ['id', 'label', 'model', 'keyHint', 'consoleUrl']) {
       assert.ok(provider[field], `${provider.id}.${field} manquant`);
     }
     assert.match(provider.consoleUrl, /^https:\/\//);
+    assert.ok(
+      Array.isArray(provider.keyPrefixes) && provider.keyPrefixes.length > 0,
+      `${provider.id}.keyPrefixes doit être une liste non vide`,
+    );
   }
   assert.equal(PROVIDER_CATALOG.gemini.model, 'gemini-3.8-flash');
+  // Google issues "AQ." auth keys since 2026; "AIza" standard keys are retired.
+  assert.ok(PROVIDER_CATALOG.gemini.keyPrefixes.includes('AQ.'));
 });
 
 test('extractText lit une réponse Gemini normale', () => {

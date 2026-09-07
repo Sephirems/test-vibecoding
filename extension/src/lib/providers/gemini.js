@@ -101,6 +101,11 @@ export function extractText(payload) {
 function geminiHttpError(status, body) {
   const detail = readErrorMessage(body);
 
+  // The full response goes to the service worker console: a message trimmed for
+  // the panel is not enough to debug an unexpected status. The key is in a
+  // header, never in the body, so nothing secret is logged here.
+  console.error(`[Résumé] Google a répondu ${status} :`, body.slice(0, 1000));
+
   if (status === 400 && /API_KEY_INVALID|API key not valid/i.test(body)) {
     return appError('INVALID_API_KEY', 'Clé API Google refusée. Vérifie-la dans les options.');
   }
@@ -110,13 +115,28 @@ function geminiHttpError(status, body) {
       `Clé API Google refusée ou sans accès au modèle${detail ? ` : ${detail}` : '.'}`,
     );
   }
+  if (status === 404) {
+    return appError(
+      'MODEL_NOT_FOUND',
+      `Le modèle ${MODEL} est introuvable pour cette clé${detail ? ` : ${detail}` : '.'}`,
+    );
+  }
   if (status === 429) {
     return appError('RATE_LIMITED', 'Quota Google atteint. Réessaie dans une minute.', true);
   }
   if (status >= 500) {
-    return appError('SERVER_ERROR', "L'API Google rencontre un problème. Réessaie.", true);
+    // Google's own message is the only thing that makes a 5xx actionable —
+    // "réessaie" alone sent the user to a dead end.
+    return appError(
+      'SERVER_ERROR',
+      `Erreur ${status} côté Google${detail ? ` : ${detail}` : '. Réessaie.'}`,
+      true,
+    );
   }
-  return appError('BAD_REQUEST', `Requête refusée par Google (${status})${detail ? ` : ${detail}` : '.'}`);
+  return appError(
+    'BAD_REQUEST',
+    `Requête refusée par Google (${status})${detail ? ` : ${detail}` : '.'}`,
+  );
 }
 
 /**
