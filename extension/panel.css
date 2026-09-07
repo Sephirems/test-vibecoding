@@ -143,6 +143,41 @@ button.link {
   margin-bottom: 7px;
 }
 
+.links {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.links-title {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.links li {
+  margin-bottom: 6px;
+}
+
+.links a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.links .host {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .notice {
   margin: 12px 0 0;
   color: var(--muted);

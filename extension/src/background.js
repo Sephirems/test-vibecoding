@@ -9,6 +9,7 @@
 import { extractArticleFromPage } from './extract.js';
 import { hashText, readCache, writeCache } from './lib/cache.js';
 import { appError, toAppError } from './lib/errors.js';
+import { pickLinks } from './lib/links.js';
 import { checkPageSupport } from './lib/pages.js';
 import { SYSTEM_PROMPT, buildUserContent, parseSummary } from './lib/prompt.js';
 import { getProvider } from './lib/providers/index.js';
@@ -17,7 +18,7 @@ import { truncateAtWord } from './lib/text.js';
 
 /** Hard ceiling on what we send. Bounds the cost of a single summary. */
 const MAX_INPUT_CHARS = 15000;
-const MAX_OUTPUT_TOKENS = 700;
+const MAX_OUTPUT_TOKENS = 1200;
 
 function enableActionOpensPanel() {
   chrome.sidePanel
@@ -112,7 +113,13 @@ async function handleSummarize({ force }) {
   const raw = await provider.summarize({
     apiKey,
     system: SYSTEM_PROMPT,
-    userContent: buildUserContent({ title: article.title, url, text, truncated }),
+    userContent: buildUserContent({
+      title: article.title,
+      url,
+      text,
+      truncated,
+      links: article.links,
+    }),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
   });
 
@@ -120,12 +127,13 @@ async function handleSummarize({ force }) {
     throw appError('EMPTY_RESPONSE', "Le modèle a répondu sans contenu. Réessaie.", true);
   }
 
-  const { tldr, points } = parseSummary(raw);
+  const { tldr, points, linkNumbers } = parseSummary(raw);
 
   /** @type {import('./lib/cache.js').CachedSummary} */
   const summary = {
     tldr,
     points,
+    links: pickLinks(linkNumbers, article.links),
     raw,
     textHash,
     title: article.title,

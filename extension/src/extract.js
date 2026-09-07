@@ -5,11 +5,12 @@
  */
 
 /**
- * @returns {{ ok: true, title: string, text: string, usedFallback: boolean }
+ * @returns {{ ok: true, title: string, text: string, links: object[], usedFallback: boolean }
  *          | { ok: false, reason: string }}
  */
 export function extractArticleFromPage() {
   const MIN_CHARS = 400;
+  const MAX_LINKS = 12;
 
   const clean = (value) =>
     String(value || '')
@@ -26,6 +27,8 @@ export function extractArticleFromPage() {
 
   let title = document.title || '';
   let text = '';
+  /** @type {{ href: string, text: string, host: string }[]} */
+  let links = [];
 
   try {
     // Readability mutates the document it is given, so it gets a copy.
@@ -47,6 +50,37 @@ export function extractArticleFromPage() {
         blocks.length > 0
           ? clean(blocks.map((node) => node.textContent).join('\n'))
           : clean(parsed.body.textContent || article.textContent);
+
+      // Links are collected from the real DOM, never from the model. The model
+      // only ever picks an index in this list, so it cannot invent a URL and a
+      // hostile page cannot talk one into the panel.
+      const seen = new Set();
+      const pageHost = location.hostname;
+      for (const anchor of parsed.body.querySelectorAll('a[href]')) {
+        if (links.length >= MAX_LINKS) break;
+        const raw = anchor.getAttribute('href') || '';
+        if (/^(#|mailto:|javascript:|tel:)/i.test(raw)) continue;
+
+        let url;
+        try {
+          url = new URL(raw, document.baseURI);
+        } catch {
+          continue;
+        }
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') continue;
+        if (seen.has(url.href)) continue;
+        seen.add(url.href);
+
+        const label = clean(anchor.textContent).slice(0, 80);
+        links.push({
+          href: url.href,
+          text: label || url.hostname,
+          host: url.hostname.replace(/^www\./, ''),
+          external: url.hostname !== pageHost,
+        });
+      }
+      // Outbound links first: on a review page those are the product ones.
+      links.sort((a, b) => Number(b.external) - Number(a.external));
     }
   } catch (error) {
     // Not fatal: the innerText fallback below still has a chance.
@@ -54,12 +88,12 @@ export function extractArticleFromPage() {
   }
 
   if (text.length >= MIN_CHARS) {
-    return { ok: true, title, text, usedFallback: false };
+    return { ok: true, title, text, links, usedFallback: false };
   }
 
   const fallback = clean(document.body ? document.body.innerText : '');
   if (fallback.length >= MIN_CHARS) {
-    return { ok: true, title, text: fallback, usedFallback: true };
+    return { ok: true, title, text: fallback, links, usedFallback: true };
   }
 
   const best = Math.max(text.length, fallback.length);

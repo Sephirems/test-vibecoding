@@ -26,6 +26,8 @@ const el = {
   loadingStatus: document.getElementById('loading-status'),
   tldr: document.getElementById('result-tldr'),
   points: document.getElementById('result-points'),
+  links: document.getElementById('result-links'),
+  linksList: document.getElementById('result-links-list'),
   notice: document.getElementById('result-notice'),
   copy: document.getElementById('copy'),
   regenerate: document.getElementById('regenerate'),
@@ -71,6 +73,35 @@ function stopLoading() {
 }
 
 /**
+ * Renders the links the model selected. The href always comes from the list the
+ * extension built out of the page DOM — the model only returned an index — and
+ * the destination host is shown so the reader sees where a link goes before
+ * clicking it.
+ * @param {{ href: string, text: string, host: string }[]} links
+ */
+function renderLinks(links) {
+  el.linksList.replaceChildren();
+
+  for (const link of links) {
+    const anchor = document.createElement('a');
+    anchor.href = link.href;
+    anchor.textContent = link.text;
+    anchor.target = '_blank';
+    anchor.rel = 'noreferrer noopener';
+
+    const host = document.createElement('span');
+    host.className = 'host';
+    host.textContent = link.host;
+
+    const li = document.createElement('li');
+    li.append(anchor, host);
+    el.linksList.append(li);
+  }
+
+  el.links.hidden = links.length === 0;
+}
+
+/**
  * @param {any} summary
  * @param {boolean} fromCache
  */
@@ -86,6 +117,8 @@ function renderSummary(summary, fromCache) {
     li.textContent = point;
     el.points.append(li);
   }
+
+  renderLinks(summary.links ?? []);
 
   const notices = [];
   if (fromCache) notices.push('Résumé déjà en cache, aucun appel facturé.');
@@ -166,7 +199,11 @@ el.regenerate.addEventListener('click', () => summarize(true));
 
 el.copy.addEventListener('click', async () => {
   if (!state.summary) return;
-  const text = [state.summary.tldr, ...(state.summary.points ?? []).map((p) => `- ${p}`)]
+  const text = [
+    state.summary.tldr,
+    ...(state.summary.points ?? []).map((point) => `- ${point}`),
+    ...(state.summary.links ?? []).map((link) => `${link.text} : ${link.href}`),
+  ]
     .filter(Boolean)
     .join('\n');
   try {
@@ -187,8 +224,11 @@ chrome.tabs.onActivated.addListener(() => refresh());
 chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
   if (tab.active && changeInfo.status === 'complete') refresh();
 });
+// Any settings change in the options page must redraw the panel: the provider
+// badge, the setup screen and the cache lookup all depend on these keys.
+const WATCHED_SETTINGS = ['provider', 'anthropicKey', 'geminiKey', 'apiKey'];
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && changes.apiKey) refresh();
+  if (area === 'local' && WATCHED_SETTINGS.some((key) => key in changes)) refresh();
 });
 
 refresh();

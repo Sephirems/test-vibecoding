@@ -79,7 +79,7 @@ test('parseSummary ne perd jamais le contenu si le format dérive', () => {
 });
 
 test('parseSummary sur une réponse vide ne jette pas', () => {
-  assert.deepEqual(parseSummary(''), { tldr: '', points: [] });
+  assert.deepEqual(parseSummary(''), { tldr: '', points: [], linkNumbers: [] });
 });
 
 test('buildUserContent délimite le contenu et signale la troncature', () => {

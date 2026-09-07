@@ -13,6 +13,7 @@ const MAX_ENTRIES = 50;
  * @typedef {object} CachedSummary
  * @property {string} tldr
  * @property {string[]} points
+ * @property {{href:string,text:string,host:string}[]} links
  * @property {string} raw
  * @property {string} textHash
  * @property {string} title

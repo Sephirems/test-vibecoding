@@ -17,7 +17,7 @@ Puis dans Chrome :
 1. `chrome://extensions` → activer **Mode développeur** (en haut à droite).
 2. **Charger l'extension non empaquetée** → sélectionner le dossier `extension/`.
 3. Clic droit sur l'icône de l'extension → **Options** → choisir le fournisseur,
-   coller sa clé (`sk-ant-…` pour Anthropic, `AIza…` pour Google) →
+   coller sa clé (`sk-ant-…` pour Anthropic, `AQ.…` pour Google) →
    **Enregistrer**. Les deux clés peuvent être enregistrées en même temps ; le
    bouton radio décide laquelle sert.
 4. Ouvrir un article, cliquer sur l'icône de l'extension : le panneau latéral
@@ -97,6 +97,11 @@ il reçoit un résumé déjà découpé.
   bundle passait de 5 Ko à 513 Ko.
 - **Plafond de 15 000 caractères** en entrée : borne le coût d'un résumé à
   environ 1 centime.
+- **Le modèle ne renvoie jamais d'URL.** Les liens sont extraits du DOM par
+  `extract.js` ; le modèle reçoit une liste numérotée (libellé + domaine, sans
+  adresse) et répond `LIENS: 1, 3`. `lib/links.js` retraduit les numéros. Une
+  URL inventée par le modèle ou soufflée par une page hostile ne peut donc pas
+  devenir un lien cliquable.
 
 ## Sécurité
 
@@ -120,7 +125,7 @@ vrai navigateur — à vérifier à la main :
 
 | # | Cas | Attendu |
 | --- | --- | --- |
-| 1 | Article de presse classique | Résumé en français, 3-5 puces |
+| 1 | Article de presse classique | Résumé en français, 4-7 puces |
 | 2 | Article en anglais | Résumé **en français** |
 | 3 | Page Wikipédia longue | Mention « article tronqué » |
 | 4 | Doc technique (MDN…) | Résumé pertinent |
@@ -134,6 +139,8 @@ vrai navigateur — à vérifier à la main :
 | 12 | Changer d'onglet pendant l'affichage | Le panneau suit l'onglet actif |
 | 13 | Basculer Anthropic → Google sur le même article | Nouveau résumé, badge mis à jour en pied de panneau |
 | 14 | Sélectionner un fournisseur sans clé | Écran « Aucune clé … enregistrée » |
+| 15 | Comparatif produit (test, guide d'achat) | Section « Liens de l'article » avec le lien du produit |
+| 16 | Article sans produit ni ressource | Aucune section de liens |
 
 Pour lire les erreurs du service worker : `chrome://extensions` → l'extension →
 **Inspecter les vues : service worker**.

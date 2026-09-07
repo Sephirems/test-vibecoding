@@ -115,3 +115,36 @@ toute la requête en 400. À activer dans `gemini.js` une fois vérifié.
 l'en-tête est bien lu (HTTP 400 `API_KEY_INVALID`, ce que le mapping d'erreurs
 intercepte). Le **corps** de la requête n'a pas pu être validé — l'authentification
 échoue avant — mais il reprend mot pour mot l'exemple de la documentation Google.
+
+## 12. Résumé plus long, et liens choisis par numéro
+
+Résumé porté de 3-5 à 4-7 points, TLDR de deux phrases, `max_tokens` de 700 à
+1200. Coût par résumé toujours de l'ordre du centime.
+
+**Les liens sont extraits du DOM, jamais écrits par le modèle.** Sur un article
+qui présente un produit, on veut le lien d'achat dans le résumé. Demander l'URL
+au modèle ouvrirait deux trous : il peut l'inventer, et une page hostile peut
+lui souffler une adresse qui deviendrait un lien cliquable dans le panneau.
+
+Le montage retenu :
+
+1. `extract.js` collecte les liens du contenu nettoyé par Readability (liens
+   externes d'abord, dédoublonnés, 12 maximum) ;
+2. le modèle ne reçoit **que le libellé et le domaine**, numérotés ;
+3. il répond `LIENS: 1, 3` — des numéros, et le parser ne lit que des chiffres,
+   donc une URL écrite malgré la consigne est jetée ;
+4. `lib/links.js` retraduit les numéros en liens réels, borne les indices et
+   plafonne à trois ;
+5. le panneau construit les `<a>` avec `createElement`, `rel="noreferrer
+   noopener"`, et affiche le domaine sous chaque lien pour que la destination
+   soit visible avant le clic.
+
+L'URL ne transite donc jamais par le modèle : elle va du DOM au panneau.
+
+**Vérifié** sur la page de comparatif qui a motivé la demande : les deux liens
+Amazon produits sortent en tête avec leur nom, les liens internes après, en
+44 ms.
+
+**Bug corrigé au passage** : le panneau n'écoutait que l'ancienne clé `apiKey`
+dans `chrome.storage.onChanged`. Depuis le multi-fournisseur, changer de
+fournisseur ne le rafraîchissait plus.

@@ -27,6 +27,9 @@ l'utilisateur, **aucun backend**.
   secret dans une URL fuite dans les logs et l'historique.
 - **Rendu du résumé en `textContent` uniquement.** Le texte vient d'une page
   web arbitraire ; `innerHTML` ouvrirait une injection.
+- **Le modèle ne produit jamais d'URL.** Il choisit un numéro dans la liste de
+  liens extraite du DOM ; `lib/links.js` seul retraduit ce numéro en `href`.
+  Ne jamais afficher une adresse venant du texte du modèle.
 - **Le service worker MV3 meurt après ~30 s d'inactivité.** Aucun état en
   mémoire entre deux messages ; tout passe par `chrome.storage`.
 - **`dangerouslyAllowBrowser: true` est indispensable** dans `background.js` :
